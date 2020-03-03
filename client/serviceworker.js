@@ -6,7 +6,12 @@ self.addEventListener('push', e => {
     body: data.text || 'Nova Notificação disponível',
     icon: data.icon || '',
     data: {
-      url: 'http://www.google.com',
+      url: 'http://www.google.com.br',
     }
   })
+})
+
+self.addEventListener('notificationclick', async function(e) {
+  console.log(e.notification.data.url)
+  await clients.openWindow(e.notification.data.url)
 })

@@ -11,9 +11,7 @@ function sendMessage() {
   }
 }
 
-// register SW, Register Push, Send Push
 async function send() {
-  // SW
   try {
     // register SW
     let register = await navigator.serviceWorker.getRegistration('/serviceWorker.js')
@@ -52,22 +50,17 @@ async function send() {
 }
 
 async function sendMessage() {
-  const text = document.getElementById('messageText').value
-  const title = document.getElementById('titleText').value
-  const icon = document.getElementById('iconUrl').value
-  const url = document.getElementById('actionUrl').value
-  
-  const response = await fetch('/send-notification', {
+  const text = document.getElementById('messageText').value;
+  const title = document.getElementById('titleText').value;
+  const icon = document.getElementById('iconUrl').value;
+  const url = document.getElementById('actionUrl').value;
+  await fetch('/send-notification', {
     method: 'POST',
     body: JSON.stringify({ text, title, icon, url }),
     headers: {
       'content-type': 'application/json'
-    },
-  })
-  let { message } = await response.json()
-  if (message == 'Subscription not found') {
-    alert(message)
-  }
+    }
+  });
 }
 
 function urlBase64ToUint8Array(base64String) {

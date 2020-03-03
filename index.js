@@ -44,7 +44,6 @@ app.post('/subscribe', function (req, res) {
 app.post('/send-notification', (req, res) => {
   if (!userSubscriptionState) return res.status(400).send({ message: 'Subscription not found' })
   const { text, title, icon, url } = req.body
-  console.log(req.body)
   const payload = JSON.stringify({
     title: title || 'New Notification',
     text: text || '',
