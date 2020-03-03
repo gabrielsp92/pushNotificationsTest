@@ -9,8 +9,15 @@
 </head>
 
 <body>
-  <h1>Testing Push Notification Using Node.js</h1>
   <script src="script.js"></script>
+  <h1>Push Notification Playground Using Node.js</h1>
+  <button onclick="subscribe()">Register Service Worker</button>
+  <br>
+  <input type="text" placeholder="Title" id="titleText" style="margin-top: 12px">
+  <input type="text" placeholder="Message" id="messageText" style="margin-top: 12px">
+  <input type="text" placeholder="Icon URL" id="iconUrl" style="margin-top: 12px">
+  <input type="text" placeholder="href" id="actionUrl" style="margin-top: 12px">
+  <button onclick="sendMessage()">Show Notification</button>
 </body>
 
 </html>

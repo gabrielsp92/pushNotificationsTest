@@ -16,6 +16,7 @@ app.use(bodyParser.json())
 const publicVapidKey = process.env.PUBLIC_VAPID_KEY
 const privateVapidKey = process.env.PRIVATE_VAPID_KEY
 
+let userSubscriptionState = null
 
 webPush.setVapidDetails('mailto:test@test.com', publicVapidKey, privateVapidKey)
 
@@ -24,20 +25,34 @@ app.get('/public-key', async function (req, res) {
 })
 
 // subscribe route
-app.post('/subscribe', async function (req, res) {
-  // get subscription object
-  const subscription = req.body
-  
+app.post('/subscribe', function (req, res) {
+  // get subscription object  
+  userSubscriptionState = req.body 
   // Send notification
-  // create payload
   const payload = JSON.stringify({
-    title: 'Push test'
+    title: 'Subscription Complete',
+    text: 'You will receive notifications from the server',
+    icon: 'https://www.pinclipart.com/picdir/big/369-3699390_notification-png-notification-icon-png-free-clipart.png',
+    url: 'http://www.google.com'
   })
-  
-  webPush.sendNotification(subscription, payload).catch(err => console.err(err))
 
+  webPush.sendNotification(userSubscriptionState, payload).catch(err => console.log(err))
   // send response status
-  return res.send(201).json({})
+  return res.sendStatus(201)
+})
+
+app.post('/send-notification', (req, res) => {
+  if (!userSubscriptionState) return res.status(400).send({ message: 'Subscription not found' })
+  const { text, title, icon, url } = req.body
+  console.log(req.body)
+  const payload = JSON.stringify({
+    title: title || 'New Notification',
+    text: text || '',
+    icon: icon || '',
+    url: url || '',
+  })
+  webPush.sendNotification(userSubscriptionState, payload).catch(err => console.log(err))
+  return res.sendStatus(200)
 })
 
 const port = 5000
