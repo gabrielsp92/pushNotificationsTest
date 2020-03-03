@@ -1,37 +1,44 @@
-// check for serviceWorker
-if ('serviceWorker' in navigator) {
-  send().catch(err => console.err(err))
+
+function subscribe() {
+  if ('serviceWorker' in navigator) {
+    send().catch(err => console.error(err))
+  }
+}
+
+function sendMessage() {
+  if ('serviceWorker' in navigator) {
+    sendMessage().catch(err => console.error(err))
+  }
 }
 
 // register SW, Register Push, Send Push
 async function send() {
   // SW
   try {
-    // get registering SW
-    const register = await navigator.serviceWorker.register('/serviceworker.js', {
-      scope: '/'
-    })
-
-    //  get vapidPublicKey
-    console.log('Registering Push...')
-    const response = await fetch('/public-key', {
-      method: 'GET',
-      headers: {
-        'content-type': 'application/json'
-      }
-    })
-
-    const data = await response.json()
-
-    const publicVapidKey = data.publicVapidKey
-
-    const subscription = await register.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-    })
-  
-    // send Push Notification
-    console.log('Sending Push...')
+    // register SW
+    let register = await navigator.serviceWorker.getRegistration('/serviceWorker.js')
+    if (!register) {
+      register = await navigator.serviceWorker.register('/serviceworker.js', {
+        scope: '/'
+      })
+    }
+    // register subscription
+    let subscription = await register.pushManager.getSubscription()
+    if (!subscription) {
+      //  Get Public Key
+      const response = await fetch('/public-key', {
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json'
+        }
+      })
+      const { publicVapidKey } = await response.json()
+      subscription = await register.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
+      })
+    }
+    // send Subscribe Request to API
     await fetch('/subscribe', {
       method: 'POST',
       body: JSON.stringify(subscription),
@@ -39,9 +46,27 @@ async function send() {
         'content-type': 'application/json'
       },
     })
-    console.log('Push Sent')
   } catch (err) {
     console.log({err})
+  }
+}
+
+async function sendMessage() {
+  const text = document.getElementById('messageText').value
+  const title = document.getElementById('titleText').value
+  const icon = document.getElementById('iconUrl').value
+  const url = document.getElementById('actionUrl').value
+  
+  const response = await fetch('/send-notification', {
+    method: 'POST',
+    body: JSON.stringify({ text, title, icon, url }),
+    headers: {
+      'content-type': 'application/json'
+    },
+  })
+  let { message } = await response.json()
+  if (message == 'Subscription not found') {
+    alert(message)
   }
 }
 

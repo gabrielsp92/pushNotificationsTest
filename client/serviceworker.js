@@ -2,9 +2,11 @@ console.log('Service Worker Loaded')
 
 self.addEventListener('push', e => {
   const data = e.data.json()
-  console.log('Push received...')
   self.registration.showNotification(data.title, {
-    body: 'Notified By Gabriel Soares',
+    body: data.text || 'Nova Notificação disponível',
+    icon: data.icon || '',
+    data: {
+      url: 'http://www.google.com',
+    }
   })
-  console.log('Notification shown')
 })
